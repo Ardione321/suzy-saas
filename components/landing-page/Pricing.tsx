@@ -49,7 +49,7 @@ export function PricingLanding() {
             ))}
           </div>
           <Link
-            href="/signup"
+            href="/sign-up"
             className="w-full inline-flex items-center justify-center rounded-xl px-4 py-3 transition-all duration-500 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/30"
           >
             Get Started
