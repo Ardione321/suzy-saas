@@ -14,6 +14,10 @@ export const getStripeSession = async ({
   domainUrl: string;
   customerId: string;
 }) => {
+  if (!domainUrl) {
+    throw new Error("Domain URL is required");
+  }
+
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
@@ -25,12 +29,11 @@ export const getStripeSession = async ({
         quantity: 1,
       },
     ],
-    customer_update: {
-      name: "auto",
-      address: "auto",
+    success_url: `${domainUrl}/dashboard?success=true`,
+    cancel_url: `${domainUrl}/dashboard?canceled=true`,
+    metadata: {
+      customerId,
     },
-    success_url: `${domainUrl}/payment/success`,
-    cancel_url: `${domainUrl}/payment/cancelled`,
   });
 
   return session.url as string;

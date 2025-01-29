@@ -9,6 +9,7 @@ import Link from "next/link";
 
 async function getData(userId: string | null) {
   unstable_noStore();
+
   if (!userId) return null;
 
   const subscription = await prisma.subscription.findUnique({
@@ -17,23 +18,24 @@ async function getData(userId: string | null) {
     },
     select: {
       status: true,
-      user: {
-        select: { stripeCustomerId: true },
-      },
+      user: { select: { stripeCustomerId: true } },
     },
   });
 
   return subscription;
 }
 
-const PricingPage = async () => {
+export default async function Pricing() {
   const { userId } = await auth();
   const user = await currentUser();
+
   const subscription = await getData(userId);
+
   const isSubscribed = subscription?.status === "active";
 
-  async function createSubsciption() {
+  async function createSubscription() {
     "use server";
+
     if (!userId) {
       return redirect("/sign-in?redirect_url=/pricing");
     }
@@ -48,7 +50,7 @@ const PricingPage = async () => {
     });
 
     if (!databaseUser) {
-      throw new Error("User not found");
+      throw new Error("DatabaseUser Not Found");
     }
 
     const email = user?.primaryEmailAddress?.emailAddress;
@@ -67,19 +69,25 @@ const PricingPage = async () => {
         },
         select: { stripeCustomerId: true },
       });
-      console.log("Database user", databaseUser);
     }
 
     if (!databaseUser.stripeCustomerId) {
       throw new Error("Failed to set stripeCustomerId for the user");
     }
 
+    const domainUrl =
+      process.env.NEXT_PUBLIC_URL ||
+      (process.env.NODE_ENV === "production"
+        ? process.env.PRODUCTION_URL
+        : "http://localhost:3000");
+
+    if (!domainUrl) {
+      throw new Error("Missing domain URL configuration");
+    }
+
     const subscriptionUrl = await getStripeSession({
       customerId: databaseUser.stripeCustomerId,
-      domainUrl:
-        process.env.NODE_ENV === "production"
-          ? (process.env.PRODUCTION_URL as string)
-          : "http://localhost:3000",
+      domainUrl: domainUrl,
       priceId: process.env.STRIPE_PRICE_ID as string,
     });
 
@@ -93,15 +101,15 @@ const PricingPage = async () => {
       return redirect("sign-in?redirect_url=/pricing");
     }
 
-    const customerProtalUrl = await stripe.billingPortal.sessions.create({
+    const customerPortalUrl = await stripe.billingPortal.sessions.create({
       customer: subscription?.user.stripeCustomerId as string,
       return_url:
         process.env.NODE_ENV === "production"
-          ? (process.env.PRODUCTION as string)
+          ? (process.env.PRODUCTION_URL as string)
           : "http://localhost:3000",
     });
 
-    return redirect(customerProtalUrl.url);
+    return redirect(customerPortalUrl.url);
   }
 
   const backLink = userId ? "/dashboard" : "/";
@@ -111,7 +119,7 @@ const PricingPage = async () => {
       <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
         Subscription Plan
       </h1>
-      <div className="space-y-4 rounded-lg border bg-card text-card-foreground shadow-lg p-6">
+      <div className="space-y-4 rounded-lg border bg-card text-card-foreground shadow-sm p-6">
         <Link
           href={backLink}
           className="text-sm font-medium text-primary underline-offset-4 hover:underline"
@@ -122,19 +130,17 @@ const PricingPage = async () => {
           Full Access
         </h2>
         <p className="leading-7">Access to all features</p>
-        <p className="text-2xl font-bold">$9.99/month</p>
+        <p className="text-2xl font-bold">$19.99/year</p>
         {isSubscribed ? (
           <form action={createCustomerPortal}>
             <Button type="submit">Manage Subscription</Button>
           </form>
         ) : (
-          <form action={createSubsciption}>
+          <form action={createSubscription}>
             <Button type="submit">Subscribe</Button>
           </form>
         )}
       </div>
     </div>
   );
-};
-
-export default PricingPage;
+}
