@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Laptop, TabletSmartphone, Smartphone } from "lucide-react";
-import { useTheme } from "next-themes";
 
 const placeholderImage = "/placeholder.svg?height=720&width=1280";
 const randomVideos = [
