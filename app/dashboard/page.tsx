@@ -5,7 +5,15 @@ import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import ThumbnailPreviewer from "./_components/thumbnail-previewer";
 
-const DashboardPage = async () => {
+async function getChannelName(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { channelName: true },
+  });
+  return user?.channelName || "";
+}
+
+export default async function Dashboard() {
   const { userId } = await auth();
 
   if (!userId) {
@@ -13,7 +21,7 @@ const DashboardPage = async () => {
   }
 
   const subscription = await prisma.subscription.findUnique({
-    where: { userId },
+    where: { userId: userId },
     select: { status: true },
   });
 
@@ -21,19 +29,20 @@ const DashboardPage = async () => {
     return (
       <div className="flex flex-col items-center justify-center p-8 rounded-lg shadow-md">
         <p className="text-xl mb-6">You are not subscribed</p>
-        <Button asChild>
-          <Link href="/pricing">Subscibed</Link>
+        <Button>
+          <Link href="/pricing">Subscribe</Link>
         </Button>
       </div>
     );
   }
+
+  const channelName = await getChannelName(userId);
+
   return (
     <div className="flex flex-col items-center justify-center p-8 rounded-lg shadow-md">
-            <p className="text-xl mb-6">Subscribed to the app</p>
+      <p className="text-xl mb-6">Subscribed to the app</p>
 
-            <ThumbnailPreviewer channelNameSaved="test" />
-        </div>
+      <ThumbnailPreviewer channelNameSaved={channelName} />
+    </div>
   );
-};
-
-export default DashboardPage;
+}

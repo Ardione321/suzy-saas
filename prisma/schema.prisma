@@ -19,6 +19,7 @@ model User {
   email            String        @unique
   stripeCustomerId String?       @unique
   name             String?
+  channelName      String?
   subscription     Subscription?
 }
 

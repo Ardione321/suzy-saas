@@ -98,7 +98,7 @@ const PricingPage = async () => {
       return_url:
         process.env.NODE_ENV === "production"
           ? (process.env.PRODUCTION as string)
-          : "http//localhost:3000",
+          : "http://localhost:3000",
     });
 
     return redirect(customerProtalUrl.url);

@@ -1,6 +1,7 @@
 import { CallToAction } from "@/components/landing-page/CallToAction";
 import { Demo } from "@/components/landing-page/Demo";
 import { Faq } from "@/components/landing-page/Faq";
+import { Footer } from "@/components/landing-page/Footer";
 import { Hero } from "@/components/landing-page/Hero";
 import { PricingLanding } from "@/components/landing-page/Pricing";
 import { Steps } from "@/components/landing-page/Steps";
@@ -22,6 +23,7 @@ export default function Home() {
         <Faq />
         <PricingLanding />
         <CallToAction />
+        <Footer />
       </div>
     </main>
   );
