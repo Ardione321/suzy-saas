@@ -27,7 +27,7 @@ export const Navbar = () => {
         <div className="flex justify-between items-center h-16 relative">
           <AnimationContainer delay={0.1}>
             <Link href="/" className="p-2 font-medium">
-              SaaS
+              Suzy Thumbnail Previewer
             </Link>
           </AnimationContainer>
 
